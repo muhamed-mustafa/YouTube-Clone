@@ -4,6 +4,9 @@ import asyncHandler from 'express-async-handler';
 import { fileUpload } from '../utils/uploadFile.js';
 import bcrypt from 'bcryptjs';
 import { ApiFeatures } from '../utils/apiFeatures.js';
+import { Video } from '../models/videoModel.js';
+import { Comment } from '../models/commentModel.js';
+import { Reply } from '../models/replyModel.js';
 
 // @desc    Get Current User
 // @route   GET /api/v1/users
@@ -52,9 +55,45 @@ const updateUser = asyncHandler(async (req, res) => {
 // @route   DELETE /api/v1/users
 // @access  Public
 const deleteCurrentUser = asyncHandler(async (req, res, next) => {
-  const user = await User.findByIdAndDelete(req.user);
+  const user = await User.findById(req.user);
   if (!user) {
     throw next(new ApiError('User Not Found', 401));
+  } else {
+    let videos = await Video.find({}).populate('comments');
+
+    // 1 - Remove all videos related to the current user
+    videos = videos.filter((video) => {
+      return video.owner.toString() !== req.user._id.toString();
+    });
+
+    // 2 - Remove all comments related to the current user from the videos
+    for (let i = 0; i < videos.length; i++) {
+      let filterComments = videos[i].comments.filter(
+        (comment) => comment.userId.toString() === req.user._id.toString()
+      );
+
+      for (let j = 0; j < filterComments.length; j++) {
+        videos = await Video.findByIdAndUpdate(
+          videos[i],
+          {
+            $pull: { comments: filterComments[j].id },
+          },
+          { new: true }
+        );
+      }
+    }
+
+    // 3 - Remove all videos related to the current user from video model
+    await Video.deleteMany({ owner: req.user._id });
+
+    // 4 - Remove all comments related to the current user from comment model
+    await Comment.deleteMany({ userId: req.user._id });
+
+    // 5 - Remove all replies related to the current user from reply model
+    await Reply.deleteMany({ userId: req.user._id });
+
+    // 6 - Delete current user
+    await user.delete();
   }
 
   res.json({

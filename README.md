@@ -58,7 +58,7 @@
 
 - DELETE /api/v1/users
 
-  `Delete cuurent user`
+  `Delete cuurent user and deleted all videos and comments related to this user`
 
 - PATCH /api/v1/users/change-password
 
@@ -77,3 +77,85 @@
 - DELETE /api/v1/users/:id
 
   `Delete specific user by id`
+
+- POST /api/v1/category
+
+  `Create a new category`
+
+- GET /api/v1/category/:id
+
+  `Get a specific category`
+
+- GET /api/v1/category
+
+  `Get all categories`
+
+- PATCH /api/v1/category/:id
+
+  `Update specific category`
+
+- DELETE /api/v1/category/:id
+
+  `Delete a specific category`
+
+<h1> Video </h1>
+
+- POST /api/v1/video
+
+  `Create a new video`
+
+- GET /api/v1/video/:filename
+
+  `Streaming video`
+
+- GET /api/v1/video
+
+  `Get a specific video`
+
+- PATCH /api/v1/video
+
+  `Update specific video`
+
+- DELETE /api/v1/video/:id
+
+  `Delete a specific video`
+
+<h1> Comment </h1>
+
+- POST /api/v1/comment
+
+  `Create a new comment on a specific video`
+
+- GET /api/v1/comment
+
+  `Get a specific comment`
+
+- GET /api/v1/comment/:videoId
+
+  `Get all comments on specific video`
+
+- PATCH /api/v1/comment/:id
+
+  `Update specific comment on specific video`
+
+- DELETE /api/v1/comment/:id
+
+  `Delete specific comment on specific video`
+
+<h1> Reply </h1>
+
+- POST /api/v1/reply
+
+  `Create a new reply on a specific comment`
+
+- GET /api/v1/reply/:commentId
+
+  `Get all replies on specific comment`
+
+- PATCH /api/v1/reply/:id
+
+  `Update specific reply on specific comment`
+
+- DELETE /api/v1/reply/:id
+
+  `Delete specific reply on specific comment`

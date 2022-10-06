@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Video Streaming With Node</title>
+        <style>
+            body {
+                margin: 5% auto;
+                max-width: 100%;
+                background-color: rgb(14, 14, 14);
+                padding-top: 10%;
+                padding-left: 35%;
+            }
+        </style>
+    </head>
+    <body>
+        <video id="videoPlayer" width="50%" controls muted="muted" autoplay>
+            <source src="http://127.0.0.1:8000/api/v1/video/632f322ef1dcd5df28eb5e10-08f2031b-bcea-4b9a-bbfc-a6e873159a95" type="video/mp4" />
+        </video>
+    </body>
+</html>

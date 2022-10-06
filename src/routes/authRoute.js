@@ -9,7 +9,7 @@ import {
   resetPassword,
 } from '../controllers/authController.js';
 import { protect } from '../middlewares/protectMiddleware.js';
-import { upload } from '../middlewares/uploadImageMiddleware.js';
+import { upload } from '../middlewares/upload-image-middleware.js';
 
 const router = express.Router();
 
