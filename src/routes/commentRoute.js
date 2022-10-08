@@ -6,6 +6,8 @@ import {
   getComment,
   updateComment,
   deleteComment,
+  likeComment,
+  dislikeComment,
 } from '../controllers/commentController.js';
 import {
   createCommentValidator,
@@ -28,5 +30,9 @@ router.get('/specific-comment/:id', getCommentValidator, getComment);
 router.patch('/:id', updateCommentValidator, updateComment);
 
 router.delete('/:id', deleteCommentValidator, deleteComment);
+
+router.patch('/like/:id', likeComment);
+
+router.patch('/dislike/:id', dislikeComment);
 
 export { router as commentRoute };

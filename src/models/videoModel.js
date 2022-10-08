@@ -25,13 +25,13 @@ const videoSchema = new Schema(
     },
 
     likes: {
-      type: Number,
-      default: 0,
+      type: Array,
+      default: [],
     },
 
     dislikes: {
-      type: Number,
-      default: 0,
+      type: Array,
+      default: [],
     },
 
     views: {

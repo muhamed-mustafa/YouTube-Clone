@@ -103,4 +103,54 @@ const deleteReply = asyncHandler(async (req, res, next) => {
   });
 });
 
-export { createNewReply, getReplies, updateReply, deleteReply };
+// @desc    Like a specific reply
+// @route   PATCH /api/v1/reply/like/:id
+// @access  Public
+const likeReply = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const currentUser = req.user.id;
+
+  const reply = await Reply.findById(id);
+  if (!reply) {
+    return next(new ApiError('Reply not found', 404));
+  }
+
+  await Reply.findByIdAndUpdate(id, {
+    $addToSet: { likes: currentUser },
+    $pull: { dislikes: currentUser },
+  });
+
+  res.json({
+    status: 200,
+    message: 'Reply liked successfully',
+    success: true,
+  });
+});
+
+// @desc    dislike a specific reply
+// @route   PATCH /api/v1/reply/dislike/:id
+// @access  Public
+const dislikeReply = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const currentUser = req.user.id;
+
+  await Reply.findByIdAndUpdate(id, {
+    $addToSet: { dislikes: currentUser },
+    $pull: { likes: currentUser },
+  });
+
+  res.json({
+    status: 200,
+    message: 'Reply disLiked successfully',
+    success: true,
+  });
+});
+
+export {
+  createNewReply,
+  getReplies,
+  updateReply,
+  deleteReply,
+  likeReply,
+  dislikeReply,
+};

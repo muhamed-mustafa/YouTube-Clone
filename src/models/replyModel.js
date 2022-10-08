@@ -14,6 +14,16 @@ const replySchema = new Schema(
       required: true,
     },
 
+    likes: {
+      type: Array,
+      default: [],
+    },
+
+    dislikes: {
+      type: Array,
+      default: [],
+    },
+
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',

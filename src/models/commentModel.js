@@ -20,6 +20,16 @@ const commentSchema = new Schema(
       required: true,
     },
 
+    likes: {
+      type: Array,
+      default: [],
+    },
+
+    dislikes: {
+      type: Array,
+      default: [],
+    },
+
     replies: [
       {
         type: Schema.Types.ObjectId,

@@ -6,6 +6,8 @@ import {
   getVideo,
   updateVideo,
   deleteVideo,
+  likeVideo,
+  dislikeVideo,
 } from '../controllers/videoController.js';
 import {
   createVideoValidator,
@@ -33,5 +35,9 @@ router.get('/', getVideoValidator, getVideo);
 router.patch('/', updateVideoValidator, updateVideo);
 
 router.delete('/:id', deleteVideoValidator, deleteVideo);
+
+router.patch('/like/:id', likeVideo);
+
+router.patch('/dislike/:id', dislikeVideo);
 
 export { router as videoRoute };

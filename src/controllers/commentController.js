@@ -131,10 +131,55 @@ const deleteComment = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc    Like a specific comment
+// @route   PATCH /api/v1/comment/like/:id
+// @access  Public
+const likeComment = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const currentUser = req.user.id;
+
+  const comment = await Comment.findById(id);
+  if (!comment) {
+    return next(new ApiError('Comment not found', 404));
+  }
+
+  await Comment.findByIdAndUpdate(id, {
+    $addToSet: { likes: currentUser },
+    $pull: { dislikes: currentUser },
+  });
+
+  res.json({
+    status: 200,
+    message: 'Comment liked successfully',
+    success: true,
+  });
+});
+
+// @desc    dislike a specific comment
+// @route   PATCH /api/v1/comment/dislike/:id
+// @access  Public
+const dislikeComment = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const currentUser = req.user.id;
+
+  await Comment.findByIdAndUpdate(id, {
+    $addToSet: { dislikes: currentUser },
+    $pull: { likes: currentUser },
+  });
+
+  res.json({
+    status: 200,
+    message: 'Comment disLiked successfully',
+    success: true,
+  });
+});
+
 export {
   createNewComment,
   getComments,
   updateComment,
   deleteComment,
   getComment,
+  likeComment,
+  dislikeComment,
 };

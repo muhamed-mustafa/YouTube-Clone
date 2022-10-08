@@ -110,7 +110,7 @@
 
 - GET /api/v1/video
 
-  `Get a specific video`
+  `Get a specific video with all comments and replies`
 
 - PATCH /api/v1/video
 
@@ -119,6 +119,14 @@
 - DELETE /api/v1/video/:id
 
   `Delete a specific video`
+
+- PATCH /api/v1/video/like/:id
+
+  `like video`
+
+- PATCH /api/v1/video/dislike/:id
+
+  `dislike video`
 
 <h1> Comment </h1>
 
@@ -142,6 +150,14 @@
 
   `Delete specific comment on specific video`
 
+- PATCH /api/v1/comment/like/:id
+
+  `like comment`
+
+- PATCH /api/v1/comment/dislike/:id
+
+  `dislike comment`
+
 <h1> Reply </h1>
 
 - POST /api/v1/reply
@@ -159,3 +175,11 @@
 - DELETE /api/v1/reply/:id
 
   `Delete specific reply on specific comment`
+
+- PATCH /api/v1/reply/like/:id
+
+  `like reply`
+
+- PATCH /api/v1/reply/dislike/:id
+
+  `dislike reply`

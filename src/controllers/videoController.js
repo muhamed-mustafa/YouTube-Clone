@@ -63,7 +63,12 @@ const streamingVideo = asyncHandler(async (req, res) => {
 // @access  Public
 const getVideo = asyncHandler(async (req, res, next) => {
   const { id } = req.query;
-  const video = await Video.findById(id).populate('comments');
+  const video = await Video.findById(id).populate({
+    path: 'comments',
+    populate: {
+      path: 'replies',
+    },
+  });
 
   res.json({
     status: 200,
@@ -146,4 +151,55 @@ const deleteVideo = asyncHandler(async (req, res, next) => {
   }
 });
 
-export { createNewVideo, streamingVideo, getVideo, updateVideo, deleteVideo };
+// @desc    Like a specific video
+// @route   PATCH /api/v1/video/like/:id
+// @access  Public
+const likeVideo = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const currentUser = req.user.id;
+
+  const video = await Video.findById(id);
+  if (!video) {
+    return next(new ApiError('Video not found', 404));
+  }
+
+  await Video.findByIdAndUpdate(id, {
+    $addToSet: { likes: currentUser },
+    $pull: { dislikes: currentUser },
+  });
+
+  res.json({
+    status: 200,
+    message: 'Video liked successfully',
+    success: true,
+  });
+});
+
+// @desc    dislike a specific video
+// @route   PATCH /api/v1/video/dislike/:id
+// @access  Public
+const dislikeVideo = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const currentUser = req.user.id;
+
+  await Video.findByIdAndUpdate(id, {
+    $addToSet: { dislikes: currentUser },
+    $pull: { likes: currentUser },
+  });
+
+  res.json({
+    status: 200,
+    message: 'Video disLiked successfully',
+    success: true,
+  });
+});
+
+export {
+  createNewVideo,
+  streamingVideo,
+  getVideo,
+  updateVideo,
+  deleteVideo,
+  likeVideo,
+  dislikeVideo,
+};
