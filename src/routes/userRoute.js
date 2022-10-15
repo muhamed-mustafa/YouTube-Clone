@@ -13,6 +13,9 @@ import {
   allUsers,
   getUser,
   deleteUser,
+  subscribeUser,
+  unSubscribeUser,
+  subChannels,
 } from '../controllers/userController.js';
 import { protect } from '../middlewares/protectMiddleware.js';
 import { upload } from '../middlewares/upload-image-middleware.js';
@@ -22,7 +25,7 @@ const router = express.Router();
 
 router.use(protect);
 
-router.get('/cuurent-user', getCurrentUser);
+router.get('/current-user', getCurrentUser);
 
 router.patch(
   '/',
@@ -42,12 +45,18 @@ router.patch(
   changeUserPassword
 );
 
+router.patch('/subscribe/:id', subscribeUser);
+
+router.patch('/unsubscribe/:id', unSubscribeUser);
+
+router.patch('/unsubscribe/:id', unSubscribeUser);
+
+router.get('/sub-channels', subChannels);
+
 router.use(allowedTo('admin'));
 
 router.get('/', allUsers);
 
 router.get('/:id', getUserValidator, getUser);
-
-router.delete('/:id', deleteUserValidator, deleteUser);
 
 export { router as userRoute };

@@ -2,7 +2,9 @@ import { ApiError } from '../utils/apiError.js';
 import asyncHandler from 'express-async-handler';
 import { Video } from '../models/videoModel.js';
 import { User } from '../models/userModel.js';
+import { ApiFeatures } from '../utils/apiFeatures.js';
 import fs from 'fs';
+import geoip from 'geoip-lite';
 
 // @desc    Create a new video
 // @route   POST /api/v1/video
@@ -58,11 +60,41 @@ const streamingVideo = asyncHandler(async (req, res) => {
   videoStream.pipe(res);
 });
 
+// @desc    Get All videos
+// @route   GET /api/v1/video/all
+// @access  Public
+const allVideos = asyncHandler(async (req, res) => {
+  let filter = {};
+  if (req.filterObj) {
+    filter = req.filterObj;
+  }
+
+  const documentCounts = await Video.countDocuments();
+  const apiFeatures = new ApiFeatures(Video.find(filter), req.query)
+    .paginate(documentCounts)
+    .filter()
+    .search()
+    .limitFields()
+    .sort();
+
+  const { mongooseQuery, paginationResult } = apiFeatures;
+  let documents = await mongooseQuery;
+
+  res.status(200).json({
+    status: 200,
+    results: documents.length,
+    paginationResult,
+    data: documents,
+    success: true,
+  });
+});
+
 // @desc    Get specific video
 // @route   GET /api/v1/video
 // @access  Public
 const getVideo = asyncHandler(async (req, res, next) => {
   const { id } = req.query;
+
   const video = await Video.findById(id).populate({
     path: 'comments',
     populate: {
@@ -74,6 +106,7 @@ const getVideo = asyncHandler(async (req, res, next) => {
     status: 200,
     data: video,
     commentsLength: video.commentsCount,
+    viewsCount: video.views.length,
     success: true,
   });
 });
@@ -194,6 +227,92 @@ const dislikeVideo = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get views by location
+// @route   PATCH /api/v1/video/views/:id
+// @access  Admin
+const getViewsByLocation = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const video = await Video.findById(id);
+
+  const total_view = video.views.length;
+  let location_view_data = [];
+
+  video.views.map((ip) => {
+    const data = geoip.lookup(ip);
+    location_view_data.push(data);
+  });
+
+  let results = {
+    total_views: total_view,
+    location_view_data,
+  };
+
+  res.json({
+    status: 200,
+    results,
+    success: true,
+  });
+});
+
+// @desc    Get random videos
+// @route   GET /api/v1/video/random
+// @access  Public
+const randomVideos = asyncHandler(async (_req, res) => {
+  const videos = await Video.aggregate([{ $sample: { size: 20 } }]);
+
+  res.json({
+    status: 200,
+    videos,
+    success: true,
+  });
+});
+
+// @desc    Get trend videos
+// @route   GET /api/v1/video/trend
+// @access  Public
+const trendVideos = asyncHandler(async (_req, res) => {
+  const videos = await Video.find().sort({ views: -1 }).limit(10);
+
+  res.json({
+    status: 200,
+    videos,
+    success: true,
+  });
+});
+
+// @desc    Get videos by tags
+// @route   GET /api/v1/video/tags
+// @access  Public
+const getByTag = asyncHandler(async (req, res) => {
+  const tags = req.query.tags.split(',');
+
+  const videos = await Video.find({ tags: { $in: tags } }).limit(10);
+
+  res.json({
+    status: 200,
+    videos,
+    success: true,
+  });
+});
+
+// @desc    Search on vidoes by name
+// @route   GET /api/v1/video/search
+// @access  Public
+
+const search = asyncHandler(async (req, res) => {
+  const { name } = req.query;
+
+  const videos = await Video.find({
+    name: { $regex: name, $options: 'i' },
+  }).limit(100);
+
+  res.json({
+    status: 200,
+    videos,
+    success: true,
+  });
+});
+
 export {
   createNewVideo,
   streamingVideo,
@@ -202,4 +321,10 @@ export {
   deleteVideo,
   likeVideo,
   dislikeVideo,
+  getViewsByLocation,
+  allVideos,
+  randomVideos,
+  trendVideos,
+  getByTag,
+  search,
 };

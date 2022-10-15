@@ -5,6 +5,7 @@ import { fileUpload } from '../utils/uploadFile.js';
 import { generateToken } from '../utils/generateToken.js';
 import { sendEmail } from '../utils/sendMail.js';
 import crypto from 'crypto';
+import { getIp } from '../utils/get-ip.js';
 
 // @desc    Signup
 // @route   POST /api/v1/auth/signup
@@ -20,7 +21,11 @@ const signUp = asyncHandler(async (req, res) => {
     coverImage = await fileUpload(req.files.coverImage[0].buffer, 'users');
   }
 
-  const user = await User.create({ ...req.body, profileImage, coverImage });
+  let user = new User({ ...req.body, profileImage, coverImage });
+  const ip = await getIp();
+  user.ip.push(ip);
+
+  await user.save();
   const token = generateToken(user._id);
 
   res.status(201).json({ status: 201, data: user, token, success: true });
@@ -37,6 +42,13 @@ const login = asyncHandler(async (req, res, next) => {
   }
 
   delete user.password;
+  const ip = await getIp();
+
+  if (!user.ip.includes(ip)) {
+    user.ip.push(ip);
+    await user.save();
+  }
+
   const token = generateToken(user._id);
   req.session = { jwt: token };
 

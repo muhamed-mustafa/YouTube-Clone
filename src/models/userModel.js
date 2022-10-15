@@ -79,6 +79,10 @@ const userSchema = new Schema(
         'https://res.cloudinary.com/microservices/image/upload/v1663596867/th_sf0joi.webp',
     },
 
+    ip: {
+      type: Array,
+    },
+
     passwordChangedAt: Date,
     passwordResetCode: String,
     passwordResetExpires: Date,

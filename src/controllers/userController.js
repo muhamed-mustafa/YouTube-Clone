@@ -7,6 +7,7 @@ import { ApiFeatures } from '../utils/apiFeatures.js';
 import { Video } from '../models/videoModel.js';
 import { Comment } from '../models/commentModel.js';
 import { Reply } from '../models/replyModel.js';
+import { playList } from '../models/playlist.model.js';
 
 // @desc    Get Current User
 // @route   GET /api/v1/users
@@ -92,7 +93,10 @@ const deleteCurrentUser = asyncHandler(async (req, res, next) => {
     // 5 - Remove all replies related to the current user from reply model
     await Reply.deleteMany({ userId: req.user._id });
 
-    // 6 - Delete current user
+    // 6 - Remove all playlist related to the current user
+    await playList.deleteMany({ owner: req.user._id });
+
+    // 7 - Delete current user
     await user.delete();
   }
 
@@ -121,6 +125,87 @@ const changeUserPassword = asyncHandler(async (req, res, next) => {
   }
 
   res.json({ status: 200, data: user, success: true });
+});
+
+// @desc    Subscribe user
+// @route   PATCH /api/v1/users/subscribe/:id
+// @access  Public
+const subscribeUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const currentUser = await User.findById(req.user.id);
+  const user = await User.findById(id);
+  if (!user) {
+    throw new ApiError('User not found', 404);
+  }
+
+  if (req.user.id !== id) {
+    if (!user.userSubScribedChannels.includes(currentUser.id)) {
+      await currentUser.updateOne({ $push: { subscribers: user.id } });
+      await user.updateOne({
+        $push: { userSubScribedChannels: currentUser.id },
+      });
+      res.status(200).json({
+        status: 200,
+        message: `${user.userName} channel has been subscribed successfully`,
+        success: true,
+      });
+    } else {
+      throw new ApiError(`you already Subscribed ${user.userName}`, 400);
+    }
+  } else {
+    throw new ApiError("You can't subscribe yourself.", 400);
+  }
+});
+
+// @desc    UnSubscribe user
+// @route   PATCH /api/v1/users/unsubscribe/:id
+// @access  Public
+const unSubscribeUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const currentUser = await User.findById(req.user.id);
+  const user = await User.findById(id);
+  if (!user) {
+    throw new ApiError('User not found', 404);
+  }
+
+  if (req.user.id !== id) {
+    if (user.userSubScribedChannels.includes(currentUser.id)) {
+      await currentUser.updateOne({ $pull: { subscribers: user.id } });
+      await user.updateOne({
+        $pull: { userSubScribedChannels: currentUser.id },
+      });
+      res.status(200).json({
+        status: 200,
+        message: `${user.userName} channel has been unsubscribed successfully`,
+        success: true,
+      });
+    } else {
+      throw new ApiError(`you don't subscribed ${user.userName}`, 400);
+    }
+  } else {
+    throw new ApiError("You can't unsubscribe yourself.", 400);
+  }
+});
+
+// @desc    Get all videos from channels you subscribed to
+// @route   GET /api/v1/users/sub-channels
+// @access  Public
+const subChannels = asyncHandler(async (req, res) => {
+  const currentUser = await User.findById(req.user.id);
+  console.log(currentUser);
+  const subscribersChannels = currentUser.subscribers;
+
+  let videos = await Promise.all(
+    subscribersChannels.map((channelId) => {
+      return Video.find({ owner: channelId });
+    })
+  );
+
+  videos = videos.flat().sort((a, b) => b.createdAt - a.createdAt);
+
+  res.status(200).json(videos);
 });
 
 // @desc    Get All Users Except Admins
@@ -198,4 +283,7 @@ export {
   allUsers,
   getUser,
   deleteUser,
+  subscribeUser,
+  unSubscribeUser,
+  subChannels,
 };

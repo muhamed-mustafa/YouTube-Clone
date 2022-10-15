@@ -48,21 +48,29 @@
 
 <h1> User </h1>
 
-- GET /api/v1/users/cuurent-user
+- GET /api/v1/users/current-user
 
-  `Return cuurent user`
+  `Return current user`
 
 - PATCH /api/v1/users
 
-  `Update cuurent user information`
+  `Update current user information`
 
 - DELETE /api/v1/users
 
-  `Delete cuurent user and deleted all videos and comments related to this user`
+  `Delete current user and deleted all videos and comments related to this user`
 
 - PATCH /api/v1/users/change-password
 
   `Change password`
+
+- PATCH /api/v1/users/subscribe/:id
+
+  `Subscribe user`
+
+- PATCH /api/v1/users/unsubscribe/:id
+
+  `unSubscribe user`
 
 <h1> Admin </h1>
 
@@ -112,6 +120,10 @@
 
   `Get a specific video with all comments and replies`
 
+- GET /api/v1/video/all
+
+  `Get all videos`
+
 - PATCH /api/v1/video
 
   `Update specific video`
@@ -127,6 +139,26 @@
 - PATCH /api/v1/video/dislike/:id
 
   `dislike video`
+
+- PATCH /api/v1/video/views/:id
+
+  `Get views by location`
+
+- GET /api/v1/video/random
+
+  `Get random videos`
+
+- GET /api/v1/video/trend
+
+  `Get trend videos`
+
+- GET /api/v1/video/tags
+
+  `Get videos by tags`
+
+- GET /api/v1/video/search
+
+  `Search on videos by name`
 
 <h1> Comment </h1>
 
@@ -183,3 +215,25 @@
 - PATCH /api/v1/reply/dislike/:id
 
   `dislike reply`
+
+<h1> PlayList </h1>
+
+- POST /api/v1/playlist
+
+  `Create new playlist`
+
+- POST /api/v1/playlist/:videoId
+
+  `Add videos to playlist`
+
+- PATCH /api/v1/playlist/:videoId
+
+  `Remove video from playlist`
+
+- PATCH /api/v1/playlist
+
+  `Update playList name`
+
+- DELETE /api/v1/playlist
+
+  `Delete playList`
