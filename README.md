@@ -140,7 +140,7 @@
 
   `dislike video`
 
-- PATCH /api/v1/video/views/:id
+- GET /api/v1/video/views/:id
 
   `Get views by location`
 

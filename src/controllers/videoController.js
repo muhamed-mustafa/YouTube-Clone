@@ -228,7 +228,7 @@ const dislikeVideo = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get views by location
-// @route   PATCH /api/v1/video/views/:id
+// @route   GET /api/v1/video/views/:id
 // @access  Admin
 const getViewsByLocation = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
